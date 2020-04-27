@@ -1,8 +1,8 @@
 
 NAME=ENDEAVOUR
-DIR=/etc/current/endeavour
-BACKUPDIR=/etc/current/endeavour_backup
-TEMPDIR=/etc/current/endeavour_temp
+DIR=/etc/endurance/current/endeavour
+BACKUPDIR=/etc/endurance/current/endeavour_backup
+TEMPDIR=/etc/endurance/current/endeavour_temp
 
 
 
