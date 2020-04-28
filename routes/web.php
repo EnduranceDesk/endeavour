@@ -15,6 +15,6 @@ use App\Jobs\ExampleJob;
 
 $router->get('/', function () use ($router) {
     // dispatch(new ExampleJob);
-    Queue::push(new ExampleJob);
+    // Queue::push(new ExampleJob);
     return view("home.index");
 });
