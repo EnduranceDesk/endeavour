@@ -1,3 +1,4 @@
+#!/bin/bash
 
 NAME=ENDEAVOUR
 DIR=/etc/endurance/current/endeavour
@@ -45,12 +46,12 @@ echo "Running Composer update"
 composer update --no-dev
 
 echo "Clearing laravel config cache"
+php artisan config:cache
 php artisan cache:clear
 
 echo "Migrating laravel "
-php artisan queue:table
-php artisan queue:failed-table
 php artisan migrate --force
+php artisan db:seed --force
 
 
 echo "Removing deploy.sh from current: $TEMPDIR"
@@ -67,8 +68,11 @@ mv -f $TEMPDIR $DIR
 
 
 echo "Clearing laravel config, event, view cache"
+php artisan config:cache
 php artisan cache:clear
+php artisan event:cache
+php artisan view:cache
 
 
-chmod -R 700 storage
-chmod -R 700 bootstrap/cache
+echo "Rebuilding laravel storage link"
+php artisan storage:link
