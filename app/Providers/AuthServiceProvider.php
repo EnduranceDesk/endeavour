@@ -28,6 +28,6 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Passport::routes();
-        Passport::loadKeysFrom('/home/endurance/secure');
+        Passport::loadKeysFrom('/etc/endurance/current/secure');
     }
 }
