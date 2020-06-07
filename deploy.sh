@@ -80,7 +80,7 @@ php artisan event:cache
 php artisan view:cache
 
 echo "Creating Passport Keys Directory"
-mkdir -p SECURE
+mkdir -p $SECURE
 php artisan passport:keys
 
 
@@ -94,7 +94,7 @@ read -p "Do you want to run php artisan passport:client --personal? " -n 1 -r
 echo    # (optional) move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-    cd DIR
+    cd $DIR
     php artisan passport:client --personal
 fi
 
