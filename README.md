@@ -1,13 +1,12 @@
-# Endurance Panel
+# Endeavour
 
 ### Installation
 
-`mkdir -p /home/endurance/repo`
 
 `cd /home/endurance/repo`
 
-`git clone https://github.com/AdnanHussainTurki/endurance`
+`git clone https://github.com/AdnanHussainTurki/endeavour`
 
-`cd /home/endurance/repo/endurance`
+`cd /home/endurance/repo/endeavour`
 
 `sh deploy.sh`

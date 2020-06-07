@@ -2,10 +2,11 @@
 
 git pull --ff-only
 
-NAME=ENDURANCE
-DIR=/home/endurance/public_html
-BACKUPDIR=/home/endurance/public_html_backup
-TEMPDIR=/home/endurance/public_html_temp
+NAME=ENDEAVOUR
+DIR=/etc/endurance/current/endeavour
+SECURE=/etc/endurance/current/secure
+BACKUPDIR=/etc/endurance/current/endeavour_backup
+TEMPDIR=/etc/endurance/current/endeavour_temp
 
 
 
@@ -79,7 +80,7 @@ php artisan event:cache
 php artisan view:cache
 
 echo "Creating Passport Keys Directory"
-mkdir -p /home/endurance/secure
+mkdir -p SECURE
 php artisan passport:keys
 
 
@@ -93,7 +94,7 @@ read -p "Do you want to run php artisan passport:client --personal? " -n 1 -r
 echo    # (optional) move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-    cd /home/endurance/public_html
+    cd DIR
     php artisan passport:client --personal
 fi
 
