@@ -3,10 +3,10 @@
 ### Installation
 
 
-`cd /home/endurance/repo`
+`cd /etc/endurance/repo`
 
 `git clone https://github.com/AdnanHussainTurki/endeavour`
 
-`cd /home/endurance/repo/endeavour`
+`cd /etc/endurance/repo/endeavour`
 
 `sh deploy.sh`
