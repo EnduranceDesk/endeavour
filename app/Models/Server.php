@@ -2,18 +2,9 @@
 
 namespace App\Models;
 
-class Server 
+use Illuminate\Database\Eloquent\Model;
+
+class Server extends Model
 {
-    public function isServerIPSet()
-    {
-        # code...
-    }
-    public function setServerIP()
-    {
-        # code...
-    }
-    public function getServerIP()
-    {
-        # code...
-    }
+    //
 }

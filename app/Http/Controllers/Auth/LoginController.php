@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Classes\Endeavour\Endeavour;
 use App\Http\Controllers\Controller;
-use App\Models\LinuxUser;
 use App\Models\User;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
 
 class LoginController extends Controller
 {
@@ -30,7 +30,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = RouteServiceProvider::HOME;
 
     /**
      * Create a new controller instance.
@@ -41,14 +41,6 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
     }
-    /**
-     * Handle a login request to the application by overriding default method.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Http\JsonResponse
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function login(Request $request)
     {
         $this->validateLogin($request);
@@ -62,14 +54,11 @@ class LoginController extends Controller
 
             return $this->sendLockoutResponse($request);
         }
-        if ((User::where("username", $request->input("username"))->first()) AND ($request->input("username") != "root")) {
-            if ($this->attemptLogin($request)) {
-                return $this->sendLoginResponse($request);
-            }
-        } 
 
+        if ($this->attemptLogin($request)) {
 
-        
+            return $this->sendLoginResponse($request);
+        }
 
         // If the login attempt was unsuccessful we will increment the number of attempts
         // to login and redirect the user back to the login form. Of course, when this
@@ -87,28 +76,25 @@ class LoginController extends Controller
     }
     public function attemptLogin(Request $request)
     {
-        if (($user = User::where("username", $request->input("username"))->first()) AND ($request->input("username") != "root")) {
-            if (LinuxUser::validate($user, $request->input("password"))) {
-                return true;
-            } else {
-                return false;
-            }
-        } 
-        
+        $endeavour = new Endeavour;
+        $response = $endeavour->login($request->input("username"), $request->input("password"));
+        if ($response->success === true) {
+            session([$request->input("username") => $response->data->token]);
+            return true;
+        }
+        return false;
     }
     protected function sendLoginResponse(Request $request)
     {
-        // Building the new user if not there
         if (!$request->input("username")) {
             $this->incrementLoginAttempts($request);
             return $this->sendFailedLoginResponse($request);
         }
-
-        if ((!User::where("username", $request->input("username"))->first()) AND ($request->input("username") == "root")) {
-             $this->incrementLoginAttempts($request);
+        if ($request->input("username") != "root") {
+            $this->incrementLoginAttempts($request);
             return $this->sendFailedLoginResponse($request);
-        } 
-        
+        }
+        $user = User::where("username", $request->input("username"))->first();
         Auth::login($user);
         $request->session()->regenerate();
         $this->clearLoginAttempts($request);

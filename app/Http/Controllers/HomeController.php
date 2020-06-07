@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LinuxUser;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -24,12 +23,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('welcome');
+        return view('home');
     }
-
-    public function register(Request $request, $username, $password)
-    {
-        // dd($password);
-        LinuxUser::addUser($username,$username, $password);
-    }
+  
 }

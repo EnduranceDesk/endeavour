@@ -1,7 +1,6 @@
-# Endurance
+# Endurance Panel
 
 ### Installation
-
 
 `mkdir -p /home/endurance/repo`
 

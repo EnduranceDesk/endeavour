@@ -1,9 +1,11 @@
 #!/bin/bash
 
-NAME=ENDEAVOUR
-DIR=/etc/endurance/current/endeavour
-BACKUPDIR=/etc/endurance/current/endeavour_backup
-TEMPDIR=/etc/endurance/current/endeavour_temp
+git pull --ff-only
+
+NAME=ENDURANCE
+DIR=/home/endurance/public_html
+BACKUPDIR=/home/endurance/public_html_backup
+TEMPDIR=/home/endurance/public_html_temp
 
 
 
@@ -43,7 +45,7 @@ echo "Renaming enviroment file"
 mv -f .env.production .env
 
 echo "Running Composer update"
-composer update --no-dev
+composer install --no-dev
 
 echo "Clearing laravel config cache"
 php artisan config:cache
@@ -65,6 +67,9 @@ rm -rf $DIR
 
 echo "Renaming: $TEMPDIR --> $DIR"
 mv -f $TEMPDIR $DIR
+# IMPORTANT
+chmod 750 $DIR
+
 
 
 echo "Clearing laravel config, event, view cache"
@@ -73,6 +78,25 @@ php artisan cache:clear
 php artisan event:cache
 php artisan view:cache
 
+echo "Creating Passport Keys Directory"
+mkdir -p /home/endurance/secure
+php artisan passport:keys
+
 
 echo "Rebuilding laravel storage link"
 php artisan storage:link
+
+npm install production
+npm run production
+
+read -p "Do you want to run php artisan passport:client --personal? " -n 1 -r
+echo    # (optional) move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    cd /home/endurance/public_html
+    php artisan passport:client --personal
+fi
+
+echo "888888888888888888888888888888888888888888888888888888888888888888888"
+echo "88888888888 ENDURANCE DEPLOYED SUCCESSFULLY (WE THINK)  8888888888888"
+echo "888888888888888888888888888888888888888888888888888888888888888888888"
