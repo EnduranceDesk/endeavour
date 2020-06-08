@@ -22,4 +22,13 @@ class ServerController extends Controller
         }
         return response()->json(Responder::build(200,true, "IP changed.",[],"IP changed."), 200);
     }
+    public function getIP(Request $request)
+    {
+        $server = new Server; 
+        $ip = $server->get();
+        if (!$ip) {
+            return response()->json(Responder::build(200,false, "Server IP not set.",[],"Server IP not set."), 500);
+        }
+        return response()->json(Responder::build(200,true, "IP Fetched.",["ip" => $ip],"IP fetched."), 200);
+    }
 }
