@@ -11,6 +11,7 @@ class Apache
     protected $apachegroup = "apache";
     protected $othervhostsfiles = "/etc/endurance/configs/httpd/othervhosts.conf";
     protected $vhostdir = "/etc/endurance/configs/httpd/vhosts";
+    protected $myssl = "/etc/endurance/configs/httpd/myssl";
     protected $php72 = "/etc/opt/remi/php72/php-fpm.d";
     protected $sock = "/etc/endurance/configs/php/php72/";
     function addMainDomain($domain_without_www, $username)
@@ -55,6 +56,47 @@ class Apache
         $this->reload();
         return false;
     }
+    public function isSSLVhostExist($domain_without_www)
+    {
+        $vhost_path = $this->vhostdir . DIRECTORY_SEPARATOR . "SSL_" . $domain_without_www . ".conf";
+        if (file_exists($vhost_path)) {
+            return true;
+        }
+        return false;
+    }
+    public function updateSSL(string $username,string  $domain,string  $chain)
+    {
+        if (!file_exists($this->myssl)) {
+            mkdir($this->myssl);
+        }
+        $domainSSLPath = $this->myssl . DIRECTORY_SEPARATOR .$domain ;
+        if (file_exists($domainSSLPath)) {
+            $this->removeDirectory($domainSSLPath);
+        }
+        mkdir($domainSSLPath);
+
+        $key = trim(explode(PHP_EOL.PHP_EOL, $chain)[0]);
+        $domain_cert = trim(explode(PHP_EOL.PHP_EOL, $chain)[1]);
+        $chain = trim(explode(PHP_EOL.PHP_EOL, $chain)[1]) . PHP_EOL.PHP_EOL . trim(explode(PHP_EOL.PHP_EOL, $chain)[2]);
+
+        file_put_contents($domainSSLPath . DIRECTORY_SEPARATOR . $domain . ".key", $key);
+        file_put_contents($domainSSLPath . DIRECTORY_SEPARATOR . "ca.cer", $domain_cert);
+        file_put_contents($domainSSLPath . DIRECTORY_SEPARATOR . "fullchain.cer", $chain);
+
+
+        $vhost_path = $this->vhostdir . DIRECTORY_SEPARATOR . "SSL_" . $domain . ".conf";
+        if (file_exists($vhost_path)) {
+            unlink($vhost_path);
+        }
+        $virtualhost = view("templates.apache.SSL", ['domain_without_www'=> $domain, 'username' => $username, 'ssldir' => $domainSSLPath . DIRECTORY_SEPARATOR])->render();
+        file_put_contents($vhost_path, $virtualhost);
+        if (file_exists($vhost_path)) {
+            $this->rebuildOtherVhosts();
+            return true;
+        }
+        unlink($vhost_path);
+        return false;
+    }
     public function reload()
     {
         exec("systemctl reload httpd");
@@ -67,5 +109,12 @@ class Apache
     {
         file_put_contents($this->othervhostsfiles,"IncludeOptional vhosts/*.conf");
     }
-    
+    public function removeDirectory($path) {
+        $files = glob($path . '/*');
+        foreach ($files as $file) {
+            is_dir($file) ? removeDirectory($file) : unlink($file);
+        }
+        rmdir($path);
+        return;
+    }
 }
