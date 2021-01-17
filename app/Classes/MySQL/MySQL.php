@@ -19,18 +19,24 @@ class MySQL
     {
         $db = $username . "_default";
         $check = $this->createDatabase($db);
+
         if (!$check) {
+            throw new \Exception("Error Processing Request: Cannot create the DB", 1);
+            
             return false;
         }
         $check = $this->createUser($username, $password);
+    
         if (!$check) {
             $this->dropDatabase($db);
+            throw new \Exception("Error Processing Request: Cannot create the DB user", 1);
             return false;
         }
         $check = $this->linkDBToUser($db, $username);
         if (!$check) {
             $this->dropDatabase($db);
             $this->dropUser($username);
+            throw new \Exception("Error Processing Request: Cannot link the DB user linkage", 1);
             return false;
         }
         return true;
@@ -52,7 +58,8 @@ class MySQL
     }
     public  function createUser($name, $password) {
         if (!$this->db) return false;
-        $this->db->query(" CREATE USER '{$name}'@'%' IDENTIFIED WITH mysql_native_password BY '{$password}'; ");
+        $queryForUserCreation = " CREATE USER '{$name}'@'%' IDENTIFIED WITH mysql_native_password BY '{$password}'; ";
+        $this->db->query($queryForUserCreation);
         return $this->db->query(" ALTER USER '{$name}'@'%' REQUIRE NONE WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0; ");
     }
      public  function dropUser($username) {

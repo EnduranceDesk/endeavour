@@ -37,6 +37,8 @@ class RoverController extends Controller
         if (LinuxUser::validateUsername($request->input("username"))) {
             return response()->json(Responder::build(400,false, "Rover with this username already exist.", [], "Rover with this username already exist as per linux."), 400);
         }
+
+
         $server = new Server;
         $ip = $server->get();
         if (!$ip) {
