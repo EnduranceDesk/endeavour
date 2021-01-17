@@ -87,8 +87,8 @@ php artisan passport:keys
 echo "Rebuilding laravel storage link"
 php artisan storage:link
 
-npm install production
-npm run production
+# npm install production
+# npm run production
 
 read -p "Do you want to run php artisan passport:client --personal? " -n 1 -r
 echo    # (optional) move to a new line
