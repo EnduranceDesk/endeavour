@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Domain as DomainEloquent;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class RoverController extends Controller
 {
@@ -53,31 +54,41 @@ class RoverController extends Controller
         if (!LinuxUser::validateUsername($username)) {
             return response()->json(Responder::build(500,false, "Error while building rover. ", [], "Cannot create linux user."), 500);
         }
+ 
         try {
-            $mysql = new MySQL("localhost", "root", "rootkapassword", "mysql");            
+            $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");            
             $dbSetCreated = $mysql->createUserSet($username, $password);
         } catch (\Exception $e) {
-            LinuxUser::remove($username);
-            $mysql = new MySQL("localhost", "root", "rootkapassword", "mysql");            
+            $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");            
             $mysql->removeUserSet($username);
+            try {
+                LinuxUser::remove($username);
+            } catch (\Exception $e) {
+                return response()->json(Responder::build(500,false, "Error while building rover. ", [], "Cannot remove a linux user which does not even exist."), 500);
+            }
             return response()->json(Responder::build(500,false, "Error while building rover. ", [], $e->getMessage()), 500);
         }
         if (!$dbSetCreated) {
-            LinuxUser::remove($username);
-        }
+            try {
+                LinuxUser::remove($username);
+            } catch (\Exception $e) {
+                return response()->json(Responder::build(500,false, "Error while building rover. ", [], "Cannot remove a linux user which does not even exist."), 500);
+            }
+            return response()->json(Responder::build(500,false, "Error while building rover. ", [], "DB set not created"), 500);
 
+        }
         try {
             $domainObject = new Domain();
             $domainCreated = $domainObject->addMainDomain($domain,$username);
         } catch (\Exception $e) {
             LinuxUser::remove($username);
-            $mysql = new MySQL("localhost", "root", "rootkapassword", "mysql");            
+            $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");            
             $mysql->removeUserSet($username);
             return response()->json(Responder::build(500,false, "Error while building rover. ", [], $e->getMessage()), 500);
         }
         if (!$domainCreated) {
             LinuxUser::remove($username);
-            $mysql = new MySQL("localhost", "root", "rootkapassword", "mysql");            
+            $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");            
             $mysql->removeUserSet($username);
             return response()->json(Responder::build(500,false, "Error while building rover. ", [], "Rover creation failed at domain creation level."), 500);
         }

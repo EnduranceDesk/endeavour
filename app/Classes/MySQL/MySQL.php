@@ -2,6 +2,8 @@
 
 namespace App\Classes\MySQL;
 
+use Illuminate\Support\Facades\Log;
+
 /**
  * MySQL
  */
