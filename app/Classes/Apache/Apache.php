@@ -47,13 +47,13 @@ class Apache
         if (file_exists($phpfpm_path) & file_exists($vhost_path)) {
             $this->rebuildOtherVhosts();
             $this->reload();
-            // $this->restartPHP72();
-            // sleep(2);
+            $this->reloadPHP72();
+            sleep(2);
             return true;
         }
         unlink($vhost_path);
         unlink($phpfpm_path);
-        $this->reload();
+        // $this->reload();
         return false;
     }
     public function isSSLVhostExist($domain_without_www)
@@ -95,6 +95,7 @@ class Apache
             return true;
         }
         unlink($vhost_path);
+        $this->reload();
         return false;
     }
     public function reload()
@@ -104,6 +105,10 @@ class Apache
     public function restartPHP72()
     {
         exec("systemctl restart php72-php-fpm");
+    }
+    public function reloadPHP72()
+    {
+        exec("systemctl reload php72-php-fpm");
     }
     public function rebuildOtherVhosts()
     {

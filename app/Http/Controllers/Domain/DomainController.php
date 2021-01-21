@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Domain;
 
 use App\Classes\Apache\Apache;
+use App\Classes\Domain\Domain;
 use App\Helpers\Responder;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class DomainController extends Controller
 {
@@ -32,5 +34,23 @@ class DomainController extends Controller
             return response()->json(Responder::build(200,true, "Domain SSL updated.",[],"Domain SSL Updated."), 200);
         }
         return response()->json(Responder::build(500,true, "Unable to update Domain SSL.",[],"Unable to update Domain SSL."), 500);
+    }
+    public function autoSSL(Request $request)
+    {
+        $domain =  $request->input("domain");
+        if (!$domain) {
+            return response()->json(Responder::build(400,true, "Domain not provided.",[],"Domain not provided."), 400);
+        }
+        $sslPerform = false;
+        try {
+            $sslPerform = (new Domain)->performAutoSSL($domain);
+        } catch (\Exception $e) {
+            return response()->json(Responder::build(500,true, "Error while performing autoSSL.",[],$e->getMessage()), 500);
+        }
+        if ($sslPerform) {
+            return response()->json(Responder::build(200,true, "AutoSSL successfully performed.",[],"AutoSSL successfully performed."), 200);
+        } else {
+            return response()->json(Responder::build(500,true, "Error while performing autoSSL",[],"Error while performing autoSSL."), 500);
+        }
     }
 }

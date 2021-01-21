@@ -2,6 +2,7 @@
 
 namespace App\Classes\Domain;
 
+use App\Classes\Acme\Acme;
 use App\Classes\Apache\Apache;
 use App\Classes\DNS\DNS;
 use App\Classes\Server\Server;
@@ -23,4 +24,19 @@ class Domain
         $check = $apache->addMainDomain($domain_without_www, $username);
         return $check;
     }    
+    public function performAutoSSL($domain_without_www)
+    {
+        $acme = new Acme;
+        try {
+            $performed = $acme->performAcme($domain_without_www);
+        } catch(\Exception $e) {
+            throw $e;
+            return false;
+        }
+        if (!$performed) {
+            return false;
+        } else {
+            return $performed;
+        }
+    }
 }
