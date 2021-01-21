@@ -12,7 +12,7 @@
       
   SuexecUserGroup {{ $username }} {{ $username }}
   <FilesMatch ".php$"> 
-         SetHandler "proxy:unix:/etc/endurance/configs/php/php72/{{ $domain_without_www }}.sock|fcgi://localhost/"          
+         SetHandler "proxy:unix:/etc/endurance/configs/php/php74/{{ $domain_without_www }}.sock|fcgi://localhost/"          
    </FilesMatch>
 
   SSLEngine on

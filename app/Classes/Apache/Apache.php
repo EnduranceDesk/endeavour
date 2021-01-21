@@ -9,11 +9,11 @@ class Apache
 {
     protected $apacheuser = "apache";
     protected $apachegroup = "apache";
-    protected $othervhostsfiles = "/etc/endurance/configs/httpd/othervhosts.conf";
-    protected $vhostdir = "/etc/endurance/configs/httpd/vhosts";
-    protected $myssl = "/etc/endurance/configs/httpd/myssl";
-    protected $php72 = "/etc/opt/remi/php72/php-fpm.d";
-    protected $sock = "/etc/endurance/configs/php/php72/";
+    protected $othervhostsfiles = "/etc/endurance/configs/discovery/othervhosts.conf";
+    protected $vhostdir = "/etc/endurance/configs/discovery/vhosts";
+    protected $myssl = "/etc/endurance/configs/discovery/myssl";
+    protected $php74 = "/etc/opt/remi/php74/php-fpm.d";
+    protected $sock = "/etc/endurance/configs/php/php74/";
     function addMainDomain($domain_without_www, $username)
     {
         chmod("/home/" . $username, 0711);
@@ -37,17 +37,17 @@ class Apache
         }
         file_put_contents($vhost_path, $virtualhost);
 
-        $php72fpmconfig = view("templates.phpfpm.config", ['domain_without_www'=> $domain_without_www, 'username' => $username, 'apacheuser' => $this->apacheuser, 'apachegroup' => $this->apachegroup])->render();
-        $phpfpm_path = $this->php72 . DIRECTORY_SEPARATOR . $domain_without_www . ".conf";
+        $php74fpmconfig = view("templates.phpfpm.config", ['domain_without_www'=> $domain_without_www, 'username' => $username, 'apacheuser' => $this->apacheuser, 'apachegroup' => $this->apachegroup])->render();
+        $phpfpm_path = $this->php74 . DIRECTORY_SEPARATOR . $domain_without_www . ".conf";
         if (file_exists($phpfpm_path)) {
             unlink($phpfpm_path);
         }
         
-        file_put_contents($phpfpm_path, $php72fpmconfig);
+        file_put_contents($phpfpm_path, $php74fpmconfig);
         if (file_exists($phpfpm_path) & file_exists($vhost_path)) {
             $this->rebuildOtherVhosts();
             $this->reload();
-            $this->reloadPHP72();
+            $this->reloadPHP74();
             sleep(2);
             return true;
         }
@@ -102,13 +102,13 @@ class Apache
     {
         exec("systemctl reload httpd");
     }
-    public function restartPHP72()
+    public function restartPHP74()
     {
-        exec("systemctl restart php72-php-fpm");
+        exec("systemctl restart php74-php-fpm");
     }
-    public function reloadPHP72()
+    public function reloadPHP74()
     {
-        exec("systemctl reload php72-php-fpm");
+        exec("systemctl reload php74-php-fpm");
     }
     public function rebuildOtherVhosts()
     {
