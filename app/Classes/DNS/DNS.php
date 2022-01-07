@@ -5,6 +5,7 @@ namespace App\Classes\DNS;
 use Badcow\DNS\AlignedBuilder;
 use Badcow\DNS\Classes;
 use Badcow\DNS\Rdata\Factory;
+use Badcow\DNS\Rdata\PTR;
 use Badcow\DNS\ResourceRecord;
 use Badcow\DNS\Zone;
 
@@ -22,8 +23,13 @@ class DNS
     public function addDomain($ip_address, $domain_without_www)
     {
         $appended_domain_without_www =  $domain_without_www .  ".";
-        $zone = new Zone($appended_domain_without_www);
+        $explodedIP = explode(".", $ip_address);
+        // $origin = PTR::reverseIpv4($explodedIP[0] . "." . $explodedIP[1] . "." .$explodedIP[2] );
+        // $zone = new Zone($origin);
+        
+        $zone = new Zone($domain_without_www);
         $zone->setDefaultTtl(60);
+
         $soa = new ResourceRecord;
         $soa->setName('@');
         $soa->setClass(Classes::INTERNET);
@@ -93,6 +99,8 @@ class DNS
         $mx1->setName('@');
         $mx1->setRdata(Factory::Mx(10, 'mail.' . $appended_domain_without_www));
 
+        $ptr1 = ResourceRecord::create('1', Factory::PTR($appended_domain_without_www), null, Classes::INTERNET);
+
         $zone->addResourceRecord($soa);
         $zone->addResourceRecord($ns1);
         $zone->addResourceRecord($ns2);
@@ -106,6 +114,7 @@ class DNS
         $zone->addResourceRecord($mx1);
         $zone->addResourceRecord($txt_identity_record);
         $zone->addResourceRecord($txt_spf_record);
+        // $zone->addResourceRecord($ptr1);
 
         $text =  AlignedBuilder::build($zone);
      
@@ -133,6 +142,20 @@ class DNS
         $this->reloadDNS();
         return true;
     } 
+    public function removeDomain($domain_without_www)
+    {
+        $zonepath = $this->zonepath;
+        $domain_zone_path = $zonepath . "/" . $domain_without_www;
+        try {
+            if (file_exists($domain_zone_path)) {
+                $this->removeDirectory($domain_zone_path);
+            }
+        } catch (\Exception $e) {
+            $this->error($e->getMessage());
+            return false;
+        }
+        return true;
+    }
     public function rebuildZones()
     {
         $bindpath = $this->bindpath;

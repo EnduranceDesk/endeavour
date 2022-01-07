@@ -18,12 +18,29 @@ class Domain
         $dns = new DNS();
         $check = $dns->addDomain($ip_address, $domain_without_www);
         if (!$check) {
+
+            throw new \Exception("Domain zone file cannot be created", 1);
             return false;
         }
         $apache = new Apache;
         $check = $apache->addMainDomain($domain_without_www, $username);
+        if (!$check) {
+            $dns->removeDomain($domain_without_www);
+            throw new \Exception("Domain vhost file cannot be created", 1);
+            return false;
+        }
         return $check;
     }    
+    public function removeMainDomain($domain_without_www, $username)
+    {   
+        $apache = new Apache;
+        $dns = new DNS();
+        
+        $dns->removeDomain($domain_without_www);
+        $apache->removeMainDomain($domain_without_www, $username);
+        return true;
+        
+    }
     public function performAutoSSL($domain_without_www)
     {
         $acme = new Acme;

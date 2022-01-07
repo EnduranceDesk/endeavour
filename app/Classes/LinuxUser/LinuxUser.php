@@ -59,10 +59,10 @@ chmod 711 /home/$user
     public static function remove($username)
     {
         $username = escapeshellarg($username);
-        if (!LinuxUser::validateUsername($username)) {
-            throw new \Exception("No user to remove", 1);
-            return false;
-        }
+        // if (!LinuxUser::validateUsername($username)) {
+        //     throw new \Exception("No user to remove", 1);
+        //     return false;
+        // }
         $script = '
 #!/bin/bash
 user=$1

@@ -13,7 +13,7 @@ class Apache
     protected $vhostdir = "/etc/endurance/configs/discovery/vhosts";
     protected $myssl = "/etc/endurance/configs/discovery/myssl";
     protected $php74 = "/etc/opt/remi/php74/php-fpm.d";
-    protected $sock = "/etc/endurance/configs/php/php74/";
+    protected $sock = "/etc/endurance/configs/php/php74-fpm/";
     function addMainDomain($domain_without_www, $username)
     {
         chmod("/home/" . $username, 0711);
@@ -55,6 +55,30 @@ class Apache
         unlink($phpfpm_path);
         // $this->reload();
         return false;
+    }
+    public function removeMainDomain($domain_without_www, $username)
+    {
+        $userroot = "/home/" . $username;
+        $vhost_path = $this->vhostdir . DIRECTORY_SEPARATOR . "NONSSL_" . $domain_without_www . ".conf";
+        $phpfpm_path = $this->php74 . DIRECTORY_SEPARATOR . $domain_without_www . ".conf";
+        $ssl_vhost_path = $this->vhostdir . DIRECTORY_SEPARATOR . "SSL_" . $domain_without_www . ".conf";
+        if (file_exists($phpfpm_path)) {
+            unlink($phpfpm_path);
+        }
+        if (file_exists($userroot)) {
+            $this->removeDirectory($userroot);
+        }
+        if (file_exists($vhost_path)) {
+            unlink($vhost_path);
+        }
+        if (file_exists($ssl_vhost_path)) {
+            unlink($ssl_vhost_path);
+        }
+        $this->reload();
+        $this->reloadPHP74();
+        return false;
+
+        
     }
     public function isSSLVhostExist($domain_without_www)
     {
@@ -115,11 +139,7 @@ class Apache
         file_put_contents($this->othervhostsfiles,"IncludeOptional vhosts/*.conf");
     }
     public function removeDirectory($path) {
-        $files = glob($path . '/*');
-        foreach ($files as $file) {
-            is_dir($file) ? removeDirectory($file) : unlink($file);
-        }
-        rmdir($path);
-        return;
+        system('rm -rf -- ' . escapeshellarg($path), $retval);
+        return $retval == 0; // UNIX commands return zero on success
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Domain;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -39,7 +40,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
+    public function scopeRovers(Builder $builder)
+    {
+        return $builder->where("username", "!=", "root");
+    }
     public function domains()
     {
         return $this->hasMany(Domain::class);

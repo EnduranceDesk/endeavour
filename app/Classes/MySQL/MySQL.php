@@ -43,7 +43,7 @@ class MySQL
         }
         return true;
     }
-    public function removeUserSet($username, $password)
+    public function removeUserSet($username)
     {
         $db = $username . "_default";
         $check = $this->dropDatabase($db);
