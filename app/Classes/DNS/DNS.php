@@ -18,16 +18,16 @@ class DNS
     protected $path = "/etc/endurance";
     protected $bindpath = "/etc/endurance/configs/bind";
     protected $zonepath = "/etc/endurance/configs/bind/zones";
-    protected $serveripfile = "/etc/endurance/configs/server/ip.conf";   
-    protected $aclpath = "/etc/endurance/configs/bind/acl.conf";   
+    protected $serveripfile = "/etc/endurance/configs/server/ip.conf";
+    protected $aclpath = "/etc/endurance/configs/bind/acl.conf";
     public function addDomain($ip_address, $domain_without_www)
     {
         $appended_domain_without_www =  $domain_without_www .  ".";
         $explodedIP = explode(".", $ip_address);
         // $origin = PTR::reverseIpv4($explodedIP[0] . "." . $explodedIP[1] . "." .$explodedIP[2] );
         // $zone = new Zone($origin);
-        
-        $zone = new Zone($domain_without_www);
+
+        $zone = new Zone($appended_domain_without_www);
         $zone->setDefaultTtl(60);
 
         $soa = new ResourceRecord;
@@ -117,7 +117,7 @@ class DNS
         // $zone->addResourceRecord($ptr1);
 
         $text =  AlignedBuilder::build($zone);
-     
+
         $path = $this->path;
         $zonepath = $this->zonepath;
         $domain_zone_path = $zonepath . "/" . $domain_without_www;
@@ -141,7 +141,7 @@ class DNS
         $this->rebuildZones();
         $this->reloadDNS();
         return true;
-    } 
+    }
     public function removeDomain($domain_without_www)
     {
         $zonepath = $this->zonepath;
