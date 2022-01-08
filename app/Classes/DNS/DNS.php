@@ -116,7 +116,8 @@ class DNS
         $zone->addResourceRecord($txt_spf_record);
         // $zone->addResourceRecord($ptr1);
 
-        $text =  AlignedBuilder::build($zone);
+        $alignedBuilder = new AlignedBuilder();
+        $text =  $alignedBuilder->build($zone);
 
         $path = $this->path;
         $zonepath = $this->zonepath;
@@ -179,7 +180,7 @@ class DNS
     public function removeDirectory($path) {
         $files = glob($path . '/*');
         foreach ($files as $file) {
-            is_dir($file) ? removeDirectory($file) : unlink($file);
+            is_dir($file) ? $this->removeDirectory($file) : unlink($file);
         }
         rmdir($path);
         return;

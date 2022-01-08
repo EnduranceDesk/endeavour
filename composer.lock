@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "93ab4e77dcc2e15a9e6ecfd482c5fe30",
+    "content-hash": "dd86927458d0dbdbd02acaa127ca80fe",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -64,16 +64,16 @@
         },
         {
             "name": "badcow/dns",
-            "version": "dev-master",
+            "version": "v4.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Badcow/DNS.git",
-                "reference": "31ad75a8943247f6ab389127fec044f92f3dd951"
+                "reference": "aeb1aa568001319ec881581010471b2f04528808"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Badcow/DNS/zipball/31ad75a8943247f6ab389127fec044f92f3dd951",
-                "reference": "31ad75a8943247f6ab389127fec044f92f3dd951",
+                "url": "https://api.github.com/repos/Badcow/DNS/zipball/aeb1aa568001319ec881581010471b2f04528808",
+                "reference": "aeb1aa568001319ec881581010471b2f04528808",
                 "shasum": ""
             },
             "require": {
@@ -86,7 +86,6 @@
                 "phpstan/phpstan": "^0.12",
                 "phpunit/phpunit": "^9.0"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -106,9 +105,9 @@
             "description": "A PHP library for creating DNS zone files based on RFC1035",
             "support": {
                 "issues": "https://github.com/Badcow/DNS/issues",
-                "source": "https://github.com/Badcow/DNS/tree/master"
+                "source": "https://github.com/Badcow/DNS/tree/v4.1.1"
             },
-            "time": "2021-07-28T23:54:47+00:00"
+            "time": "2021-01-21T22:53:54+00:00"
         },
         {
             "name": "brick/math",
@@ -8949,9 +8948,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "badcow/dns": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
