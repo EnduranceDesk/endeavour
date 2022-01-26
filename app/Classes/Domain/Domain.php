@@ -30,16 +30,16 @@ class Domain
             return false;
         }
         return $check;
-    }    
+    }
     public function removeMainDomain($domain_without_www, $username)
-    {   
+    {
         $apache = new Apache;
         $dns = new DNS();
-        
+
         $dns->removeDomain($domain_without_www);
         $apache->removeMainDomain($domain_without_www, $username);
         return true;
-        
+
     }
     public function performAutoSSL($domain_without_www)
     {
@@ -55,5 +55,9 @@ class Domain
         } else {
             return $performed;
         }
+    }
+    public function changePHPversion($domain_without_www)
+    {
+        # code...
     }
 }

@@ -127,6 +127,7 @@ class DNS
                 $this->removeDirectory($domain_zone_path);
             }
         } catch (\Exception $e) {
+            // TODO: What is $this->error()?
             $this->error($e->getMessage());
             return false;
         }
@@ -155,6 +156,8 @@ class DNS
             $this->error($e->getMessage());
             return false;
         }
+        $this->rebuildZones();
+        $this->reloadDNS();
         return true;
     }
     public function rebuildZones()
