@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Rover;
 use App\Classes\Domain\Domain;
 use App\Classes\LinuxUser\LinuxUser;
 use App\Classes\MySQL\MySQL;
+use App\Classes\PHP\PHP;
 use App\Classes\Server\Server;
 use App\Helpers\Responder;
 use App\Http\Controllers\Controller;
@@ -29,34 +30,38 @@ class RoverController extends Controller
         }
 
         LinuxUser::remove($username);
-        $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");            
+        $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");
         $mysql->removeUserSet($username);
 
 
         $user = User::where("username", $username)->rovers()->first();
 
         $domainObject = new Domain();
-        $domainObject->removeMainDomain($user->domains->first()->name, $username);
+        $domainObject->removeMainDomain($user->domains->first()->name, $username, $user->domains->first()->current_php);
         $user->domains()->delete();
         $user->delete();
         return response()->json(Responder::build(200,true, "Rover destruction successful."), 200);
+    }
+    public function prepareBuild(Request $request) {
+        return response()->json(Responder::build(200,true, "Prebuilt Metadata",["php" => (new PHP)->getVersions()],"PHP Versions"), 200);
     }
     public function build(Request $request)
     {
         $username = $request->input("username");
         $domain = $request->input("domain");
         $password = $request->input("password");
+        $php_version = $request->input("php_version");
 
 
-        if ((!$request->input("username")) || (!$request->input("password")) || (!$request->input("domain")) ) {
-            return response()->json(Responder::build(400,false, "Bad Request",[],"username or password or domain not supplied"), 400);
+        if ((!$request->input("username")) || (!$request->input("password")) || (!$request->input("domain")) || (!$request->input("php_version")) ) {
+            return response()->json(Responder::build(400,false, "Bad Request",[],"username or password or domain or version not supplied"), 400);
         }
         if (User::where("username", $request->input("username"))->first()) {
             return response()->json(Responder::build(400,false, "Rover with this username already exist."), 400);
         }
-        
+
         // TODO: Add password based catch to prevent shell injection via password text (with bad command in it)
-        
+
         if (LinuxUser::validateUsername($request->input("username"))) {
             return response()->json(Responder::build(400,false, "Rover with this username already exist.", [], "Rover with this username already exist as per linux."), 400);
         }
@@ -87,11 +92,11 @@ class RoverController extends Controller
 
             return response()->json(Responder::build(500,false, "Error while building rover. ", [], "Cannot create linux user."), 500);
         }
- 
+
         try {
             Log::info("ROVER BUILDER:  building mysql user set" );
 
-            $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");            
+            $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");
             $dbSetCreated = $mysql->createUserSet($username, $password);
         } catch (\Exception $e) {
             Log::info("ROVER BUILDER:  error building mysql user set" );
@@ -124,27 +129,27 @@ class RoverController extends Controller
         try {
             Log::info("ROVER BUILDER: adding main domain" );
             $domainObject = new Domain();
-            $domainCreated = $domainObject->addMainDomain($domain,$username);
+            $domainCreated = $domainObject->addMainDomain($domain,$username, $php_version);
         } catch (\Exception $e) {
             Log::info("ROVER BUILDER: error while adding main domain" ." Message: ". $e->getMessage() );
             try {
                 LinuxUser::remove($username);
             } catch (\Exception $e) {
-                Log::info($e->getMessage());                
+                Log::info($e->getMessage());
             }
             try {
-                $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");            
+                $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");
                 $mysql->removeUserSet($username);
             } catch (\Exception $e) {
-                Log::info($e->getMessage());                
+                Log::info($e->getMessage());
             }
-            $domainObject->removeMainDomain($domain,$username);
+            $domainObject->removeMainDomain($domain,$username, $php_version);
 
             return response()->json(Responder::build(500,false, "Error while building rover. ", [], $e->getMessage()), 500);
         }
         if (!$domainCreated) {
             LinuxUser::remove($username);
-            $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");            
+            $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");
             $mysql->removeUserSet($username);
             return response()->json(Responder::build(500,false, "Error while building rover. ", [], "Rover creation failed at domain creation level."), 500);
         }
@@ -166,6 +171,9 @@ class RoverController extends Controller
         $domainEloquent->ftp  = true;
         $domainEloquent->www  = true;
         $domainEloquent->mx  = true;
+        $domainEloquent->metadata = json_encode([
+            "current_php" => $php_version
+        ]);
         $domainEloquent->save();
 
         return response()->json(Responder::build(200,true, "Rover creation successful."), 200);

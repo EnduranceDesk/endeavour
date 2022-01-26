@@ -29,7 +29,7 @@ class DomainController extends Controller
             return response()->json(Responder::build(400,true, "Domain not found.",[],"Domain not found."), 400);
         }
         $apache = new Apache;
-        $check = $apache->updateSSL(Auth::user()->username, $domain->name , $chain);
+        $check = $apache->updateSSL(Auth::user()->username, $domain->name , $chain, $domain->current_php);
         if ($check) {
             return response()->json(Responder::build(200,true, "Domain SSL updated.",[],"Domain SSL Updated."), 200);
         }

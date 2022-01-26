@@ -12,7 +12,7 @@ use App\Classes\Server\Server;
  */
 class Domain
 {
-    public function addMainDomain($domain_without_www, $username)
+    public function addMainDomain($domain_without_www, $username, $php_version)
     {
         $ip_address = (new Server)->get();
         $dns = new DNS();
@@ -23,7 +23,7 @@ class Domain
             return false;
         }
         $apache = new Apache;
-        $check = $apache->addMainDomain($domain_without_www, $username);
+        $check = $apache->addMainDomain($domain_without_www, $username, $php_version);
         if (!$check) {
             $dns->removeDomain($domain_without_www);
             throw new \Exception("Domain vhost file cannot be created", 1);
@@ -31,13 +31,13 @@ class Domain
         }
         return $check;
     }
-    public function removeMainDomain($domain_without_www, $username)
+    public function removeMainDomain($domain_without_www, $username, $php_version)
     {
         $apache = new Apache;
         $dns = new DNS();
 
         $dns->removeDomain($domain_without_www);
-        $apache->removeMainDomain($domain_without_www, $username);
+        $apache->removeMainDomain($domain_without_www, $username, $php_version);
         return true;
 
     }

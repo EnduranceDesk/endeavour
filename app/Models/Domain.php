@@ -7,10 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Domain extends Model
 {
-    protected $append = "ssl";
+    protected $append = ["ssl","current_php"];
     public function getSslAttribute()
     {
         $apache = new Apache;
         return $apache->isSSLVhostExist($this->name);
+    }
+    public function getMetaData()
+    {
+        return json_decode($this->metadata);
+    }
+    public function getCurrentPHPAttribute()
+    {
+        return $this->getMetaData()->current_php;
     }
 }

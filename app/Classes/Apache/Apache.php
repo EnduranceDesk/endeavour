@@ -2,6 +2,8 @@
 
 namespace App\Classes\Apache;
 
+use App\Classes\PHP\PHP;
+
 /**
  * Apache Manager
  */
@@ -12,9 +14,8 @@ class Apache
     protected $othervhostsfiles = "/etc/endurance/configs/discovery/othervhosts.conf";
     protected $vhostdir = "/etc/endurance/configs/discovery/vhosts";
     protected $myssl = "/etc/endurance/configs/discovery/myssl";
-    protected $php74 = "/etc/opt/remi/php74/php-fpm.d";
-    protected $sock = "/etc/endurance/configs/php/php74-fpm/";
-    function addMainDomain($domain_without_www, $username)
+
+    function addMainDomain($domain_without_www, $username, $php_version)
     {
         chmod("/home/" . $username, 0711);
         $public_html = "/home/" . $username .  "/public_html";
@@ -29,7 +30,7 @@ class Apache
             chown($indexFile, $username);
             chgrp($indexFile, $username);
         }
-        $virtualhost = view("templates.apache.NONSSL", ['domain_without_www'=> $domain_without_www, 'username' => $username])->render();
+        $virtualhost = view("templates.apache.NONSSL", ['domain_without_www'=> $domain_without_www, 'username' => $username, 'php_version' => $php_version])->render();
         $vhost_path = $this->vhostdir . DIRECTORY_SEPARATOR . "NONSSL_" . $domain_without_www . ".conf";
         if (file_exists($vhost_path)) {
             throw new \Exception("Domain already added to the server.", 1);
@@ -37,17 +38,18 @@ class Apache
         }
         file_put_contents($vhost_path, $virtualhost);
 
-        $php74fpmconfig = view("templates.phpfpm.config", ['domain_without_www'=> $domain_without_www, 'username' => $username, 'apacheuser' => $this->apacheuser, 'apachegroup' => $this->apachegroup])->render();
-        $phpfpm_path = $this->php74 . DIRECTORY_SEPARATOR . $domain_without_www . ".conf";
+        $phpfpmconfig = view("templates.phpfpm.config", ['domain_without_www'=> $domain_without_www, 'username' => $username, 'apacheuser' => $this->apacheuser, 'apachegroup' => $this->apachegroup, 'php_version' => $php_version])->render();
+        $phpfpm_path = "/etc/opt/remi/" . (new PHP)->getRemiName($php_version) .  "/php-fpm.d" . DIRECTORY_SEPARATOR . $domain_without_www . ".conf";
         if (file_exists($phpfpm_path)) {
             unlink($phpfpm_path);
         }
-        
-        file_put_contents($phpfpm_path, $php74fpmconfig);
+
+        file_put_contents($phpfpm_path, $phpfpmconfig);
+
         if (file_exists($phpfpm_path) & file_exists($vhost_path)) {
             $this->rebuildOtherVhosts();
             $this->reload();
-            $this->reloadPHP74();
+            $this->reloadPHP($php_version);
             sleep(2);
             return true;
         }
@@ -56,11 +58,11 @@ class Apache
         // $this->reload();
         return false;
     }
-    public function removeMainDomain($domain_without_www, $username)
+    public function removeMainDomain($domain_without_www, $username, $php_version)
     {
         $userroot = "/home/" . $username;
         $vhost_path = $this->vhostdir . DIRECTORY_SEPARATOR . "NONSSL_" . $domain_without_www . ".conf";
-        $phpfpm_path = $this->php74 . DIRECTORY_SEPARATOR . $domain_without_www . ".conf";
+        $phpfpm_path ="/etc/opt/remi/" . (new PHP)->getRemiName($php_version) .  "/php-fpm.d". DIRECTORY_SEPARATOR . $domain_without_www . ".conf";
         $ssl_vhost_path = $this->vhostdir . DIRECTORY_SEPARATOR . "SSL_" . $domain_without_www . ".conf";
         if (file_exists($phpfpm_path)) {
             unlink($phpfpm_path);
@@ -75,10 +77,10 @@ class Apache
             unlink($ssl_vhost_path);
         }
         $this->reload();
-        $this->reloadPHP74();
+        $this->reloadPHP($php_version);
         return false;
 
-        
+
     }
     public function isSSLVhostExist($domain_without_www)
     {
@@ -88,7 +90,7 @@ class Apache
         }
         return false;
     }
-    public function updateSSL(string $username,string  $domain,string  $chain)
+    public function updateSSL(string $username,string  $domain,string  $chain, $current_php_version)
     {
         if (!file_exists($this->myssl)) {
             mkdir($this->myssl);
@@ -112,27 +114,31 @@ class Apache
         if (file_exists($vhost_path)) {
             unlink($vhost_path);
         }
-        $virtualhost = view("templates.apache.SSL", ['domain_without_www'=> $domain, 'username' => $username, 'ssldir' => $domainSSLPath . DIRECTORY_SEPARATOR])->render();
+        $virtualhost = view("templates.apache.SSL", ['domain_without_www'=> $domain, 'username' => $username, 'ssldir' => $domainSSLPath . DIRECTORY_SEPARATOR,  'current_php_version' => $current_php_version])->render();
         file_put_contents($vhost_path, $virtualhost);
         if (file_exists($vhost_path)) {
             $this->rebuildOtherVhosts();
             return true;
         }
         unlink($vhost_path);
-        $this->reload();
+        $this->restart();
         return false;
+    }
+    public function restart()
+    {
+        exec("systemctl restart httpd");
     }
     public function reload()
     {
         exec("systemctl reload httpd");
     }
-    public function restartPHP74()
+    public function restartPHP($version)
     {
-        exec("systemctl restart php74-php-fpm");
+        exec("systemctl restart ". (new PHP)->getServiceName($version));
     }
-    public function reloadPHP74()
+    public function reloadPHP($version)
     {
-        exec("systemctl reload php74-php-fpm");
+        exec("systemctl reload ". (new PHP)->getServiceName($version));
     }
     public function rebuildOtherVhosts()
     {

@@ -1,7 +1,7 @@
 [{{ $username}}]
 user = {{ $username}}
 group = {{ $username}}
-listen = /etc/endurance/configs/php/php74/{{ $domain_without_www }}.sock
+listen = /etc/endurance/configs/php/{{$php_version}}/{{ $domain_without_www }}.sock
 listen.owner = {{ $apacheuser}}
 listen.group = {{ $apachegroup}}
 pm = dynamic

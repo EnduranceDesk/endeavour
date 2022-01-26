@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\Log;
 
 /**
  * Responder
@@ -14,12 +15,13 @@ class Responder
             'code' => $response_code,
             'success' => $success,
             'message' => $message,
-            
+
             'data' => $data
         ];
         // if (config("app.debug") === true) {
             $array = array_merge($array, ['debug_msg' => $debug_msg]);
-        // }
+            // }
+        Log::alert($message, $array);
         return $array;
     }
 }
