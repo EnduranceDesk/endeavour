@@ -5,7 +5,7 @@
 
 `cd /etc/endurance/repo`
 
-`git clone https://adnanhussainturki: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@github.com/EnduranceDesk/endeavour`
+`git clone https://adnanhussainturki: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@github.com/EnduranceDesk/endeavour`
 
 `cd /etc/endurance/repo/endeavour`
 
