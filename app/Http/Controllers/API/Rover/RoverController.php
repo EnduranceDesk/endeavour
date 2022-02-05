@@ -43,7 +43,8 @@ class RoverController extends Controller
         return response()->json(Responder::build(200,true, "Rover destruction successful."), 200);
     }
     public function prepareBuild(Request $request) {
-        return response()->json(Responder::build(200,true, "Prebuilt Metadata",["php" => (new PHP)->getVersions()],"PHP Versions"), 200);
+        $versions =  (new PHP)->getVersions();
+        return response()->json(Responder::build(200,true, "Prebuilt Metadata",["php" =>$versions],"PHP Versions"), 200);
     }
     public function build(Request $request)
     {
