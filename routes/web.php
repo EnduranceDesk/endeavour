@@ -4,5 +4,5 @@
 use App\Helpers\Screen;
 
 Route::get("/", function () {
-    die("ENDEAVOUR");
+    die("WELCOME TO ENDEAVOUR");
 });
