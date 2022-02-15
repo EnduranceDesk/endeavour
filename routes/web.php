@@ -3,7 +3,6 @@
 
 use App\Helpers\Screen;
 
-Route::any("/test", function () {
-    $process = Screen::get()->executeFileNow(base_path("shell_scripts/create_new_user.shell"), ["nawazthegreat", "udfsyhsduif&&@&#"], null, 20);
-    dd($process);
+Route::get("/", function () {
+    die("ENDEAVOUR");
 });
