@@ -3,6 +3,8 @@
 namespace App\Classes\Acme;
 
 use App\Classes\Apache\Apache;
+use App\Helpers\Screen;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
@@ -11,46 +13,19 @@ use Symfony\Component\Process\Process;
 /**
  * Acme.sh
  */
-class Acme 
+class Acme
 {
     /*
         Error code 2 : When the ceritificates are generated too frequently and the request to regenerate is dropped/skipped by acme.
      */
-    
-    public function performAcme($domain_without_www)
-    {
-        $subs = [
-            'www', 'mail'
-        ];
-        $array = [
-            "sh",
-            "/etc/endurance/executables/acme.sh/acme.sh",
-            "--issue",
-            "--apache",
-            "-d",
-            $domain_without_www
-        ];
-        foreach ($subs   as $sub) {
-            $array[] = "-d";
-            $array[] = $sub. "." . $domain_without_www ;
-        }
-        // $array[] = "--force";
-        $process = new Process($array);
-        $process->start();
 
-        $iterator = $process->getIterator($process::ITER_SKIP_ERR | $process::ITER_KEEP_OUTPUT);
-        $output = "";
-        foreach ($iterator as $data) {
-            $output .= $data."\n";
+    public function performAcme($domain_without_www, $current_php_version)
+    {
+        $process = Screen::get()->executeFileNow(base_path("shell_scripts/process_acme_ssl.shell"), [$domain_without_www], null, 120);
+        if (!$process->success) {
+            throw new Exception("Failed to perform Acme");
         }
-        if ($process->getExitCode() === 0 || $process->getExitCode() === 2) {
-            return $this->process($domain_without_www);
-        } else {
-            $loggable = "Error while performing acme. Error:  " . $process->getErrorOutput() .  ", Error code: " .  $process->getExitCode() ;
-            Log::error($loggable);
-            throw new \Exception($loggable );
-            return false;
-        }
+        return $this->process($domain_without_www, $current_php_version);
     }
     public function buildChain($domain_without_www)
     {
@@ -60,11 +35,11 @@ class Acme
         $chain = trim($key) .  PHP_EOL  . PHP_EOL  . trim($cert) . PHP_EOL . PHP_EOL . trim($ca);
         return $chain;
     }
-    public function process($domain_without_www)
+    public function process($domain_without_www, $current_php_version)
     {
         $chain  = $this->buildChain($domain_without_www);
         $apache = new Apache;
-        $check = $apache->updateSSL(Auth::user()->username, $domain_without_www , $chain);
+        $check = $apache->updateSSL(Auth::user()->username, $domain_without_www , $chain, $current_php_version);
         return $check;
     }
 }

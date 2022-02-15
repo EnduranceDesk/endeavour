@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e4d09655e61517ae5fd6c1f6a1ab6545",
+    "content-hash": "ee7d308b106f4226cc1c96f2ec16dfe4",
     "packages": [
         {
             "name": "adnanhussainturki/unix-screen-php",
-            "version": "dev-main",
+            "version": "0.06",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AdnanHussainTurki/unix-screen-php.git",
-                "reference": "f5f4b2762691e3d28f07a85f5197a610b3f26610"
+                "reference": "b9849e3056cb34c1b37b0ab2cfe29ec708667e75"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AdnanHussainTurki/unix-screen-php/zipball/f5f4b2762691e3d28f07a85f5197a610b3f26610",
-                "reference": "f5f4b2762691e3d28f07a85f5197a610b3f26610",
+                "url": "https://api.github.com/repos/AdnanHussainTurki/unix-screen-php/zipball/b9849e3056cb34c1b37b0ab2cfe29ec708667e75",
+                "reference": "b9849e3056cb34c1b37b0ab2cfe29ec708667e75",
                 "shasum": ""
             },
             "require": {
@@ -26,7 +26,6 @@
                 "nahid/jsonq": "^6.0",
                 "symfony/process": "^5.4"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -51,9 +50,9 @@
             ],
             "support": {
                 "issues": "https://github.com/AdnanHussainTurki/unix-screen-php/issues",
-                "source": "https://github.com/AdnanHussainTurki/unix-screen-php/tree/main"
+                "source": "https://github.com/AdnanHussainTurki/unix-screen-php/tree/0.06"
             },
-            "time": "2022-02-05T20:59:29+00:00"
+            "time": "2022-02-05T22:26:43+00:00"
         },
         {
             "name": "asm89/stack-cors",
@@ -9115,9 +9114,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "adnanhussainturki/unix-screen-php": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

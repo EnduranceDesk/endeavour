@@ -29,7 +29,10 @@ class RoverController extends Controller
             return response()->json(Responder::build(400,false, "Bad Request",[],"username not supplied"), 400);
         }
 
-        LinuxUser::remove($username);
+        $linuxUserRemoval = LinuxUser::remove($username);
+        if (!$linuxUserRemoval) {
+            return response()->json(Responder::build(200,false, "Cannot remove the user from Linux OS."), 200);
+        }
         $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");
         $mysql->removeUserSet($username);
 
@@ -48,8 +51,9 @@ class RoverController extends Controller
     }
     public function build(Request $request)
     {
-        $username = $request->input("username");
-        $domain = $request->input("domain");
+
+        $username = strtolower($request->input("username"));
+        $domain = strtolower($request->input("domain"));
         $password = $request->input("password");
         $php_version = $request->input("php_version");
 

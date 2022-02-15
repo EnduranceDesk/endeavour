@@ -1,0 +1,42 @@
+exitcode=1
+
+
+# TODO: Rollback mechanism not implmented
+
+domain=$1
+previousVersion=$2
+newVersion=$3
+
+nonSSLvhost="/etc/endurance/configs/discovery/vhosts/NONSSL_$domain.conf"
+SSLvhost="/etc/endurance/configs/discovery/vhosts/SSL_$domain.conf"
+
+# // Change the virtual host
+sed -i "s/$previousVersion/$newVersion/g"   $nonSSLvhost
+
+if [ -e $SSLvhost ] ; then
+    sed -i "s/$previousVersion/$newVersion/g"   $SSLvhost
+fi
+
+# // Delete the FPM config from the previous remi
+onlyPreviousVersion=$(echo $previousVersion | awk -F- '{print $1}')
+onlyNewVersion=$(echo $newVersion | awk -F- '{print $1}')
+
+systemctl stop $onlyNewVersion-php-fpm
+systemctl stop $onlyPreviousVersion-php-fpm
+
+fpmFile="/etc/opt/remi/$onlyPreviousVersion/php-fpm.d/$domain.conf"
+newFpmFile="/etc/opt/remi/$onlyNewVersion/php-fpm.d/$domain.conf"
+sed -i "s/$previousVersion/$newVersion/g"   $fpmFile
+mv $fpmFile $newFpmFile
+
+# // Moving the previous sock to new location
+sockFile="/etc/endurance/configs/php/$previousVersion/$domain.sock"
+newSockFile="/etc/endurance/configs/php/$newVersion/$domain.sock"
+
+mv $sockFile $newSockFile
+
+systemctl reload httpd
+systemctl restart $onlyNewVersion-php-fpm
+systemctl restart $onlyPreviousVersion-php-fpm
+
+exitcode=0

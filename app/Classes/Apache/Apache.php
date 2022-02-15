@@ -3,6 +3,7 @@
 namespace App\Classes\Apache;
 
 use App\Classes\PHP\PHP;
+use App\Helpers\Screen;
 
 /**
  * Apache Manager
@@ -118,6 +119,7 @@ class Apache
         file_put_contents($vhost_path, $virtualhost);
         if (file_exists($vhost_path)) {
             $this->rebuildOtherVhosts();
+            $this->restart();
             return true;
         }
         unlink($vhost_path);
@@ -126,19 +128,19 @@ class Apache
     }
     public function restart()
     {
-        exec("systemctl restart httpd");
+        Screen::get()->executeCommand("systemctl restart httpd",[], null,5);
     }
     public function reload()
     {
-        exec("systemctl reload httpd");
+        Screen::get()->executeCommand("systemctl reload httpd",[], null,5);
     }
     public function restartPHP($version)
     {
-        exec("systemctl restart ". (new PHP)->getServiceName($version));
+        Screen::get()->executeCommand("systemctl restart ". (new PHP)->getServiceName($version),[], null,5);
     }
     public function reloadPHP($version)
     {
-        exec("systemctl reload ". (new PHP)->getServiceName($version));
+        Screen::get()->executeCommand("systemctl reload ". (new PHP)->getServiceName($version),[], null,5);
     }
     public function rebuildOtherVhosts()
     {

@@ -41,11 +41,11 @@ class Domain
         return true;
 
     }
-    public function performAutoSSL($domain_without_www)
+    public function performAutoSSL($domain_without_www, $php_version)
     {
         $acme = new Acme;
         try {
-            $performed = $acme->performAcme($domain_without_www);
+            $performed = $acme->performAcme($domain_without_www,  $php_version);
         } catch(\Exception $e) {
             throw $e;
             return false;

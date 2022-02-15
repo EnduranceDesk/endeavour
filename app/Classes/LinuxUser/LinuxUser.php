@@ -2,6 +2,7 @@
 
 namespace App\Classes\LinuxUser;
 
+use App\Helpers\Screen;
 
 /**
  *  Linux user authentication class
@@ -23,7 +24,7 @@ class LinuxUser
         $makepassword = preg_split("/[$:]/",trim(`openssl passwd -6 -salt $shadow[3] $password`));
         if($shadow[4] == $makepassword[3]) {
             return true;
-        } 
+        }
         return false;
     }
     public static function currentUser()
@@ -36,45 +37,19 @@ class LinuxUser
     }
     public static function add($username, $password)
     {
-        $username = escapeshellarg($username);
-        $password = escapeshellarg($password);
         if (LinuxUser::validateUsername($username)) {
             throw new \Exception("User already exist", 1);
             return false;
         }
-        $script = '
-#!/bin/bash
-user=$1
-passwd=$2
-/usr/sbin/useradd $user -d /home/$user  -m  ;
-echo $passwd | passwd $user --stdin;
-chmod 711 /home/$user
-';
-        $check = file_put_contents('/adduser.sh', $script);
-        chmod('/adduser.sh', 0700);
-        $return =  shell_exec("sh /adduser.sh $username $password");
-        unlink("/adduser.sh");
-        return true;
+        $process = Screen::get()->executeFileNow(base_path("shell_scripts/create_new_user.shell"), [$username, $password], null, 10);
+        return $process->success;
     }
     public static function remove($username)
     {
-        $username = escapeshellarg($username);
-        // if (!LinuxUser::validateUsername($username)) {
-        //     throw new \Exception("No user to remove", 1);
-        //     return false;
-        // }
-        $script = '
-#!/bin/bash
-user=$1
-/usr/sbin/userdel $user;
-';
-        $check = file_put_contents('/deluser.sh', $script);
-        chmod('/deluser.sh', 0700);
-        $return =  shell_exec("sh /deluser.sh $username ");
-        unlink("/deluser.sh");
+        $process = Screen::get()->executeFileNow(base_path("shell_scripts/delete_user.shell"), [$username], null, 10);
         if (LinuxUser::validateUsername($username)) {
             return false;
         }
-        return true;
+        return $process->success;
     }
 }

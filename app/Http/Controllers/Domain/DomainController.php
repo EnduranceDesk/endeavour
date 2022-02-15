@@ -6,6 +6,7 @@ use App\Classes\Apache\Apache;
 use App\Classes\Domain\Domain;
 use App\Helpers\Responder;
 use App\Http\Controllers\Controller;
+use App\Models\Domain as ModelsDomain;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -41,9 +42,11 @@ class DomainController extends Controller
         if (!$domain) {
             return response()->json(Responder::build(400,true, "Domain not provided.",[],"Domain not provided."), 400);
         }
+        $domainModel = ModelsDomain::where("name", $domain)->first();
+        $current_php = json_decode($domainModel->metadata)->current_php;
         $sslPerform = false;
         try {
-            $sslPerform = (new Domain)->performAutoSSL($domain);
+            $sslPerform = (new Domain)->performAutoSSL($domain, $current_php);
         } catch (\Exception $e) {
             return response()->json(Responder::build(500,true, "Error while performing autoSSL.",[],$e->getMessage()), 500);
         }

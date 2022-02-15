@@ -2,6 +2,7 @@
 
 namespace App\Classes\DNS;
 
+use App\Helpers\Screen;
 use Badcow\DNS\AlignedBuilder;
 use Badcow\DNS\Classes;
 use Badcow\DNS\Rdata\Factory;
@@ -178,7 +179,7 @@ class DNS
     }
     public function reloadDNS()
     {
-        exec("systemctl reload named.service");
+        Screen::get()->executeCommand("systemctl reload named.service",[], null,5);
     }
     public function removeDirectory($path) {
         $files = glob($path . '/*');

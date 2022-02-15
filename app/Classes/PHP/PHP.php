@@ -2,6 +2,8 @@
 
 namespace App\Classes\PHP;
 
+use App\Helpers\Screen;
+
 /**
  * PHP Manager
  */
@@ -28,5 +30,10 @@ class PHP
     public function getRemiName($version)
     {
         return str_replace("-fpm", "", $version);
+    }
+    public function changePHPVersion($domain, $previousVersion,  $newVersion)
+    {
+        $process = Screen::get()->executeFileNow(base_path("shell_scripts/change_php_version.shell"), [$domain, $previousVersion,  $newVersion], null, 10);
+        return $process->success;
     }
 }

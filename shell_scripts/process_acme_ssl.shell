@@ -1,0 +1,6 @@
+exitcode=1
+
+domain=$1
+sh /etc/endurance/executables/acme.sh/acme.sh --register-account -m admin@$domain  --issue --apache -d $domain -d www.$domain -d mail.$domain --log
+exitcode=$?
+systemctl reload httpd

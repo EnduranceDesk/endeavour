@@ -1,0 +1,7 @@
+exitcode=1
+
+user=$1
+/usr/sbin/userdel -f $user;
+userCreatedExitCode=$?
+exitcode=userCreatedExitCode
+echo "User Deleted: " $userCreatedExitCode
