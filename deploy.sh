@@ -93,6 +93,14 @@ echo "Setting passport client for authenication"
 cd $DIR
 php artisan passport:client --personal
 
+echo "Implementing Schedular"
+crontab -l > temp.cron
+sed '/\/etc\/endurance\/current\/endeavour\/artisan/d' temp.cron > clean.cron
+echo "* * * * * php /etc/endurance/current/endeavour/artisan schedule:run" >> clean.cron
+crontab clean.cron
+rm temp.cron clean.cron
+
+
 echo "888888888888888888888888888888888888888888888888888888888888888888888"
 echo "88888888888 ENDEAVOUR DEPLOYED SUCCESSFULLY (WE THINK)  8888888888888"
 echo "888888888888888888888888888888888888888888888888888888888888888888888"

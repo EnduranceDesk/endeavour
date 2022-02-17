@@ -38,9 +38,9 @@ class Heartbeat extends Command
      */
     public function handle()
     {
-        for ($i=0; $i < 10; $i++) {
+        for ($i=0; $i < 5; $i++) {
             Screen::get()->heartbeat();
-            sleep(2);
+            sleep(1);
         }
         return 0;
     }
