@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1af5fba1c7efd2af67da2e9a928e013e",
+    "content-hash": "e6ee8618677fb1836f44a3f067af9ed8",
     "packages": [
         {
             "name": "adnanhussainturki/unix-screen-php",
-            "version": "0.10",
+            "version": "0.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AdnanHussainTurki/unix-screen-php.git",
-                "reference": "412c9cbb1648c7ee98dfeca096f5b1458b947e28"
+                "reference": "1fcfc09cff04c30bbb992d69ba9cccb2f19f64b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AdnanHussainTurki/unix-screen-php/zipball/412c9cbb1648c7ee98dfeca096f5b1458b947e28",
-                "reference": "412c9cbb1648c7ee98dfeca096f5b1458b947e28",
+                "url": "https://api.github.com/repos/AdnanHussainTurki/unix-screen-php/zipball/1fcfc09cff04c30bbb992d69ba9cccb2f19f64b1",
+                "reference": "1fcfc09cff04c30bbb992d69ba9cccb2f19f64b1",
                 "shasum": ""
             },
             "require": {
@@ -50,9 +50,9 @@
             ],
             "support": {
                 "issues": "https://github.com/AdnanHussainTurki/unix-screen-php/issues",
-                "source": "https://github.com/AdnanHussainTurki/unix-screen-php/tree/0.10"
+                "source": "https://github.com/AdnanHussainTurki/unix-screen-php/tree/0.11"
             },
-            "time": "2022-02-17T16:44:00+00:00"
+            "time": "2022-02-17T17:26:37+00:00"
         },
         {
             "name": "asm89/stack-cors",
