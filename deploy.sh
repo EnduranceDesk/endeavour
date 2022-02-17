@@ -46,7 +46,7 @@ echo "Renaming enviroment file"
 mv -f .env.production .env
 
 echo "Running Composer update"
-composer install --no-dev
+composer install --no-dev --no-interaction
 
 echo "Clearing laravel config cache"
 php artisan config:cache
