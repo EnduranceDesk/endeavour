@@ -20,6 +20,6 @@ class FileController extends Controller
         if (!file_exists($request->filepath)) {
             return response()->json(Responder::build(400,false, "Bad Request",[],"File does not exist!"), 400);
         }
-        return response()->json(Responder::build(200,true, "Bad Request",["content" => file_get_contents($request->filepath)],"Only root can read files"), true);
+        return response()->json(Responder::build(200,true, "Content fetched",["content" => file_get_contents($request->filepath)],"Only root can read files"), 200);
     }
 }
