@@ -3,7 +3,8 @@
 require 'apipartials/api_route.php';
 require 'apipartials/cron_apiroute.php';
 require 'apipartials/domain_apiroute.php';
+require 'apipartials/file_apiroute.php';
+require 'apipartials/php_apiroute.php';
 require 'apipartials/rover_apiroute.php';
 require 'apipartials/server_apiroute.php';
 require 'apipartials/user_apiroute.php';
-require 'apipartials/php_apiroute.php';
