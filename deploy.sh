@@ -89,7 +89,7 @@ php artisan storage:link
 
 # npm install production
 # npm run production
-
+echo "Setting passport client for authenication"
 cd $DIR
 php artisan passport:client --personal
 
