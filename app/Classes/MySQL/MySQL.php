@@ -87,5 +87,9 @@ class MySQL
         if (!$this->db) return false;
         return $this->db->query($query);;
     }
+    public function getCurrentRootPassword()
+    {
+        return trim(file_get_contents("/etc/endurance/credentials/mysql.root"));
+    }
 
 }
