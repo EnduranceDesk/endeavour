@@ -93,6 +93,10 @@ class DNS
         $txt_identity_record->setRdata(Factory::TXT('Hello World Speaking from Endurance send some love to MARK-II'));
         $txt_identity_record->setComment('IP of the server');
 
+        $dmarc_record = new ResourceRecord;
+        $dmarc_record->setRdata(Factory::TXT('v=DMARC1; p=reject; rua=mailto:postmaster@'.$domain_without_www));
+        $dmarc_record->setComment('IP of the server');
+
         $txt_spf_record = new ResourceRecord;
         $txt_spf_record->setRdata(Factory::TXT("v=spf1 +a +mx +ip4:{$ip_address} ~all"));
 
@@ -115,6 +119,7 @@ class DNS
         $zone->addResourceRecord($mx1);
         $zone->addResourceRecord($txt_identity_record);
         $zone->addResourceRecord($txt_spf_record);
+        $zone->addResourceRecord($dmarc_record);
         // $zone->addResourceRecord($ptr1);
 
         $alignedBuilder = new AlignedBuilder();

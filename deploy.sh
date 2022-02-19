@@ -12,41 +12,41 @@ TEMPDIR=/etc/endurance/current/endeavour_temp
 
 rm -rf $BACKUPDIR
 
-if [ -d $DIR ] 
+if [ -d $DIR ]
 then
-    echo "Making backup of previous $NAME." 
+    echo "Making backup of previous $NAME."
     mv -f $DIR/{.,}* $BACKUPDIR/
 else
     echo "No previous $NAME is found. Skipping backup."
 fi
 
-echo "Removing previous TEMPDIR $TEMPDIR." 
+echo "Removing previous TEMPDIR $TEMPDIR."
 rm -rf $TEMPDIR
 
-echo "Making new current DIR $DIR." 
+echo "Making new current DIR $DIR."
 mkdir -p $DIR
 
-echo "Pushing maintain page to  $DIR." 
+echo "Pushing maintain page to  $DIR."
 cp  MAINTAIN_PAGE_DO_NOT_DELETE.html "$DIR/index.html"
 
-echo "Building Temp Directory at $TEMPDIR." 
+echo "Building Temp Directory at $TEMPDIR."
 mkdir -p $TEMPDIR
 
-echo "Moving All files from here to $TEMPDIR." 
+echo "Moving All files from here to $TEMPDIR."
 cp -rf $(pwd)/* $TEMPDIR
 cp -rf $(pwd)/.env.production $TEMPDIR
 cp -rf $(pwd)/.htaccess $TEMPDIR
 
 
 
-echo "Changed current directory $TEMPDIR." 
+echo "Changed current directory $TEMPDIR."
 cd $TEMPDIR
 
 echo "Renaming enviroment file"
 mv -f .env.production .env
 
 echo "Running Composer update"
-composer install --no-dev
+composer install --no-dev --no-interaction
 
 echo "Clearing laravel config cache"
 php artisan config:cache
@@ -89,14 +89,17 @@ php artisan storage:link
 
 # npm install production
 # npm run production
+echo "Setting passport client for authenication"
+cd $DIR
+php artisan passport:client --personal
 
-read -p "Do you want to run php artisan passport:client --personal? " -n 1 -r
-echo    # (optional) move to a new line
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-    cd $DIR
-    php artisan passport:client --personal
-fi
+echo "Implementing Schedular"
+crontab -l > temp.cron
+sed '/\/etc\/endurance\/current\/endeavour\/artisan/d' temp.cron > clean.cron
+echo "* * * * * php /etc/endurance/current/endeavour/artisan schedule:run" >> clean.cron
+crontab clean.cron
+rm temp.cron clean.cron
+
 
 echo "888888888888888888888888888888888888888888888888888888888888888888888"
 echo "88888888888 ENDEAVOUR DEPLOYED SUCCESSFULLY (WE THINK)  8888888888888"
