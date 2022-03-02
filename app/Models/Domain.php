@@ -21,4 +21,12 @@ class Domain extends Model
     {
         return $this->getMetaData()->current_php;
     }
+    public function emails()
+    {
+        return $this->hasMany(Email::class);
+    }
+    public function emailAliases()
+    {
+        return $this->hasMany(EmailAlias::class);
+    }
 }

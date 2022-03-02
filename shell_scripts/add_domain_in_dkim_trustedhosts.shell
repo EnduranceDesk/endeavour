@@ -1,0 +1,12 @@
+exitcode=1
+
+domain=$1
+
+matches=$(cat /etc/opendkim/TrustedHosts | grep ^$domain$)
+
+if [ "$matches" == "$domain" ]; then
+    echo "Already added."
+else
+    echo $domain  >> /etc/opendkim/TrustedHosts
+    exitcode=$?
+fi

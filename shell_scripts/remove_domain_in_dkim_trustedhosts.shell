@@ -1,0 +1,12 @@
+exitcode=1
+
+domain=$1
+
+matches=$(cat /etc/opendkim/TrustedHosts | grep ^$domain$)
+
+if [ "$matches" == "$domain" ]; then
+    sed -i "/^$domain$/d"  /etc/opendkim/TrustedHosts
+    exitcode=$?
+else
+    echo "Not present."
+fi
