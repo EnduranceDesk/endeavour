@@ -17,6 +17,7 @@ class CreateMailUsersTable extends Migration
             $table->id();
             $table->integer("domain_id");
             $table->string("name");
+            $table->string("email");
             $table->string("password");
             $table->boolean("active")->default(0);
             $table->timestamps();
