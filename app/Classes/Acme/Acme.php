@@ -21,7 +21,7 @@ class Acme
 
     public function performAcme($domain_without_www, $current_php_version)
     {
-        $process = Screen::get()->executeFileNow(base_path("shell_scripts/process_acme_ssl.shell"), [$domain_without_www], null, 120);
+        $process = Screen::get()->executeFileNow(base_path("shell_scripts/process_acme_ssl.shell"), [$domain_without_www], null, 300);
         if (!$process->success) {
             throw new Exception("Failed to perform Acme");
         }

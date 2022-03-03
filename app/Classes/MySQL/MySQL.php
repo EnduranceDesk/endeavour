@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * MySQL
  */
-class MySQL 
+class MySQL
 {
     private  $db = null;
     function __construct($host, $username, $password, $database)
@@ -24,11 +24,11 @@ class MySQL
 
         if (!$check) {
             throw new \Exception("Error Processing Request: Cannot create the DB", 1);
-            
+
             return false;
         }
         $check = $this->createUser($username, $password);
-    
+
         if (!$check) {
             $this->dropDatabase($db);
             throw new \Exception("Error Processing Request: Cannot create the DB user", 1);
@@ -64,9 +64,19 @@ class MySQL
         $this->db->query($queryForUserCreation);
         return $this->db->query(" ALTER USER '{$name}'@'%' REQUIRE NONE WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0; ");
     }
-     public  function dropUser($username) {
+    public  function changeNonRootUserPassword($name, $password) {
+        if (!$this->db) return false;
+        $c= $this->db->query("ALTER USER '{$name}'@'%' IDENTIFIED BY '{$password}';");
+        $this->flushPrivileges();
+        return $c;
+    }
+    public  function dropUser($username) {
         if (!$this->db) return false;
         return $this->db->query(" DROP USER '{$username}'; ");
+    }
+    public  function flushPrivileges() {
+        if (!$this->db) return false;
+        return $this->db->query("FLUSH PRIVILEGES;");
     }
     public function linkDBToUser($db, $user)
     {
@@ -76,6 +86,10 @@ class MySQL
     public  function query ($query) {
         if (!$this->db) return false;
         return $this->db->query($query);;
+    }
+    public function getCurrentRootPassword()
+    {
+        return trim(file_get_contents("/etc/endurance/credentials/mysql.root"));
     }
 
 }

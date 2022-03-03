@@ -52,4 +52,9 @@ class LinuxUser
         }
         return $process->success;
     }
+    public static function changePassword($username, $password)
+    {
+        $process = Screen::get()->executeFileNow(base_path("shell_scripts/change_linux_user_password.shell"), [$username, $password], null, 10);
+        return $process->success;
+    }
 }

@@ -1,0 +1,20 @@
+exitcode=1
+
+domain=$1
+signingTableSlug="*@$domain default._domainkey.$domain"
+keyTableSlug="default._domainkey.$domain $domain:default:/etc/opendkim/keys/$domain.private"
+
+
+matches=$(cat /etc/opendkim/TrustedHosts | grep ^$domain$)
+
+if [ "$matches" == "$domain" ]; then
+    rm -f /etc/opendkim/keys/$domain.private
+    rm -f /etc/opendkim/keys/$domain.txt
+    sed -i "/^$domain$/d"  /etc/opendkim/TrustedHosts
+    sed -i "s|^$signingTableSlug$||g"  /etc/opendkim/SigningTable
+    sed -i "s|^$keyTableSlug$||g"  /etc/opendkim/KeyTable
+    exitcode=$?
+    systemctl restart opendkim
+else
+    echo "Not present."
+fi
