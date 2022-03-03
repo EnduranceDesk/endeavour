@@ -113,7 +113,7 @@ class DNS
         $dmarc_record->setComment('IP of the server');
 
 
-        $dkim_key_path = "/etc/opendkim/keys/default.txt";
+        $dkim_key_path = "/etc/opendkim/keys/". $domain_without_www. ".txt";
         $txt_dkim = null;
         if (file_exists($dkim_key_path)) {
             $data = file_get_contents($dkim_key_path);

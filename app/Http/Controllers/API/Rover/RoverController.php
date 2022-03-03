@@ -32,7 +32,7 @@ class RoverController extends Controller
         }
 
         $linuxUserRemoval = LinuxUser::remove($username);
-        if (!$linuxUserRemoval) {
+    if (!$linuxUserRemoval) {
             return response()->json(Responder::build(200,false, "Cannot remove the user from Linux OS."), 200);
         }
         $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");
@@ -140,6 +140,8 @@ class RoverController extends Controller
             return response()->json(Responder::build(500,false, "Error while building rover. ", [], "DB set not created"), 500);
 
         }
+        $process = Screen::get()->executeFileNow(base_path("shell_scripts/add_domain_in_dkim_trustedhosts.shell"), [$domain], null, 10);
+
         try {
             Log::info("ROVER BUILDER: adding main domain" );
             $domainObject = new Domain();
@@ -199,7 +201,6 @@ class RoverController extends Controller
         $email->active = true;
         $email->save();
 
-        $process = Screen::get()->executeFileNow(base_path("shell_scripts/add_domain_in_dkim_trustedhosts.shell"), [$domain], null, 10);
         return response()->json(Responder::build(200,true, "Rover creation successful."), 200);
     }
 }

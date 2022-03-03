@@ -7,6 +7,37 @@ matches=$(cat /etc/opendkim/TrustedHosts | grep ^$domain$)
 if [ "$matches" == "$domain" ]; then
     echo "Already added."
 else
+    cd /etc/opendkim/keys
+    sudo opendkim-genkey -s $domain -d $domain
     echo $domain  >> /etc/opendkim/TrustedHosts
     exitcode=$?
 fi
+
+keyTableSlug="default._domainkey.$domain $domain:default:/etc/opendkim/keys/$domain.private"
+matchKeyTable=$(cat /etc/opendkim/KeyTable | grep ^$keyTableSlug$)
+if [ "$matchKeyTable" == "$keyTableSlug" ]; then
+    echo "Key already added."
+else
+    cd /etc/opendkim/keys
+    echo $keyTableSlug  >> /etc/opendkim/KeyTable
+    exitcode=$?
+fi
+
+
+signingTableSlug="*@$domain default._domainkey.$domain"
+matchKeyTable=$(cat /etc/opendkim/SigningTable | grep ^$signingTableSlug$)
+if [ "$signingTableSlug" == "$matchKeyTable" ]; then
+    echo "Entry in signing table already added."
+else
+    cd /etc/opendkim/keys
+    echo $signingTableSlug  >> /etc/opendkim/SigningTable
+    exitcode=$?
+fi
+
+chown opendkim:mail /etc/opendkim/keys/$domain.private
+chown opendkim:mail /etc/opendkim/keys/$domain.txt
+chmod o=  /etc/opendkim/keys/$domain.private
+chmod o=  /etc/opendkim/keys/$domain.txt
+
+
+systemctl restart opendkim
