@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class FileController extends Controller
 {
+
     public function getContent(Request $request)
     {
         if (Auth::user()->username != "root") {

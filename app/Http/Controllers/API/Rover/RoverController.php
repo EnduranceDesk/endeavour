@@ -8,8 +8,10 @@ use App\Classes\MySQL\MySQL;
 use App\Classes\PHP\PHP;
 use App\Classes\Server\Server;
 use App\Helpers\Responder;
+use App\Helpers\Screen;
 use App\Http\Controllers\Controller;
 use App\Models\Domain as DomainEloquent;
+use App\Models\Email;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -30,7 +32,7 @@ class RoverController extends Controller
         }
 
         $linuxUserRemoval = LinuxUser::remove($username);
-        if (!$linuxUserRemoval) {
+    if (!$linuxUserRemoval) {
             return response()->json(Responder::build(200,false, "Cannot remove the user from Linux OS."), 200);
         }
         $mysql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");
@@ -41,8 +43,15 @@ class RoverController extends Controller
 
         $domainObject = new Domain();
         $domainObject->removeMainDomain($user->domains->first()->name, $username, $user->domains->first()->current_php);
+
         $user->domains()->delete();
+        foreach($user->domains as $domain) {
+            $process = Screen::get()->executeFileNow(base_path("shell_scripts/remove_domain_in_dkim_trustedhosts.shell"), [$domain->name], null, 10);
+            $domain->emails()->delete();
+        }
         $user->delete();
+
+
         return response()->json(Responder::build(200,true, "Rover destruction successful."), 200);
     }
     public function prepareBuild(Request $request) {
@@ -131,6 +140,8 @@ class RoverController extends Controller
             return response()->json(Responder::build(500,false, "Error while building rover. ", [], "DB set not created"), 500);
 
         }
+        $process = Screen::get()->executeFileNow(base_path("shell_scripts/add_domain_in_dkim_trustedhosts.shell"), [$domain], null, 10);
+
         try {
             Log::info("ROVER BUILDER: adding main domain" );
             $domainObject = new Domain();
@@ -180,6 +191,15 @@ class RoverController extends Controller
             "current_php" => $php_version
         ]);
         $domainEloquent->save();
+
+        $email = new Email();
+        $email->domain_id = $domainEloquent->id;
+        $email->name = explode(".",$domain)[0];
+        $email->email =  $email->name . "@" . $domain;
+        $salt = substr(sha1(rand()), 0, 16);
+        $email->password = crypt($password, "$6$$salt");
+        $email->active = true;
+        $email->save();
 
         return response()->json(Responder::build(200,true, "Rover creation successful."), 200);
     }
