@@ -13,6 +13,8 @@ else
     exitcode=$?
 fi
 
+sudo opendkim-genkey -s $domain -d $domain
+
 keyTableSlug="default._domainkey.$domain $domain:default:/etc/opendkim/keys/$domain.private"
 matchKeyTable=$(cat /etc/opendkim/KeyTable | grep ^$keyTableSlug$)
 if [ "$matchKeyTable" == "$keyTableSlug" ]; then
