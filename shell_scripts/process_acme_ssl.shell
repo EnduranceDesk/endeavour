@@ -4,8 +4,29 @@ domain=$1
 rm -rf  /etc/endurance/configs/discovery/myssl/$domain
 rm -rf  /etc/endurance/configs/discovery/vhosts/SSL_$domain.conf
 rm -rf  /root/.acme.sh/$domain
+
+sslEntryForPostfix="$domain /etc/endurance/configs/discovery/myssl/$domain/$domain.key /etc/endurance/configs/discovery/myssl/$domain/fullchain.cer"
+sed -i "s|^$sslEntryForPostfix$||g"   /etc/postfix/vmail_ssl.map
+
+sslEntryForPostfix="$domain /etc/endurance/configs/ssl/$domain/$domain.key /etc/endurance/configs/ssl/$domain/fullchain.cer"
+sed -i "s|^$sslEntryForPostfix$||g"  /etc/postfix/vmail_ssl.map
+
+
+
 systemctl reload httpd
 sh /etc/endurance/executables/acme.sh/acme.sh --register-account -m admin@$domain  --issue --apache -d $domain -d www.$domain -d mail.$domain  -d endurance.$domain -d rover.$domain --log --force
 exitcode=$?
 
+
+cp  -rf  /root/.acme.sh/$domain   /etc/endurance/configs/discovery/myssl
+
+if [ -f "/etc/endurance/configs/discovery/myssl/$domain/fullchain.cer" ]; then
+echo "Adding SSL to the Postfix"
+cat >>  /etc/postfix/vmail_ssl.map  << EOD
+$domain /etc/endurance/configs/discovery/myssl/$domain/$domain.key /etc/endurance/configs/discovery/myssl/$domain/fullchain.cer
+EOD
+postmap -F hash:/etc/postfix/vmail_ssl.map
+systemctl restart postfix
+
+fi
 systemctl reload httpd
