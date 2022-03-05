@@ -44,11 +44,11 @@ class RoverController extends Controller
         $domainObject = new Domain();
         $domainObject->removeMainDomain($user->domains->first()->name, $username, $user->domains->first()->current_php);
 
-        $user->domains()->delete();
         foreach($user->domains as $domain) {
             $process = Screen::get()->executeFileNow(base_path("shell_scripts/remove_domain_in_dkim_trustedhosts.shell"), [$domain->name], null, 10);
             $domain->emails()->delete();
         }
+        $user->domains()->delete();
         $user->delete();
 
 
@@ -194,8 +194,8 @@ class RoverController extends Controller
 
         $email = new Email();
         $email->domain_id = $domainEloquent->id;
-        $email->name = explode(".",$domain)[0];
-        $email->email =  $email->name . "@" . $domain;
+        $email->name =ucwords(explode(".",$domain)[0]);
+        $email->email =  strtolower($email->name) . "@" . $domain;
         $salt = substr(sha1(rand()), 0, 16);
         $email->password = crypt($password, "$6$$salt");
         $email->active = true;

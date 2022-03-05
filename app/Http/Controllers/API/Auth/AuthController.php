@@ -7,6 +7,7 @@ use App\Classes\MySQL\MySQL;
 use App\Helpers\Responder;
 use App\Helpers\Screen;
 use App\Http\Controllers\Controller;
+use App\Models\Email;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,6 +32,16 @@ class AuthController extends Controller
         if  (($userModel->username != "root") && ($username != $userModel->username)) {
             return response()->json(Responder::build(400,false, "Insufficient privileges", [], "Insufficient privileges. Rover can only change his/own passwords."), 400);
         }
+
+        foreach(User::where("username", $username)->first()->domains as $domain) {
+            foreach($domain->emails as $email) {
+                $salt = substr(sha1(rand()), 0, 16);
+                $email->password = crypt($password, "$6$$salt");
+                $email->save();
+            }
+        }
+
+
         $mySql = new MySQL(config("database.connections.mysql.host"), config("database.connections.mysql.username"), config("database.connections.mysql.password"), "mysql");
         $oldmysqlpassword  = $mySql->getCurrentRootPassword();
         if ($username == "root" && $userModel->username == "root") {
