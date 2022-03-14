@@ -1,0 +1,48 @@
+exitcode=1
+
+user=$1
+command=$2
+
+
+matches=$(cat /etc/cron.allow | grep ^$user$)
+
+if [ "$matches" == "$user" ]; then
+    echo "Already allowed."
+else
+    echo "Allowing $user for cron"
+    echo  $user  >> /etc/cron.allow
+fi
+
+
+# Storing cron in text file
+mkdir -p /etc/endurance/configs/cron/$user
+
+
+echo "Trying to create the crontab file if not exists"
+FILE=/etc/endurance/configs/cron/$user/crontab
+if [ -f "$FILE" ]; then
+    echo "$FILE exists."
+else
+    echo "creating $FILE."
+    echo "MAILTO=" > $FILE
+fi
+
+sed -i "/^$command$/d"  /etc/endurance/configs/cron/$user/crontab
+
+echo "Backuping current crontab"
+cp /etc/endurance/configs/cron/$user/crontab /etc/endurance/configs/cron/$user/crontab.backup
+
+
+echo "Adding cron entry"
+echo "$command"  >> /etc/endurance/configs/cron/$user/crontab
+crontab -u $user  /etc/endurance/configs/cron/$user/crontab
+exitcode=$?
+if [ $exitcode -ne 0 ]; then
+    echo "Failed to add crontab. Retracting"
+    rm -f /etc/endurance/configs/cron/$user/crontab
+    mv -f /etc/endurance/configs/cron/$user/crontab.backup /etc/endurance/configs/cron/$user/crontab
+else
+    rm -f /etc/endurance/configs/cron/$user/crontab.backup
+fi
+echo "Printing user crons"
+crontab -u $user  -l

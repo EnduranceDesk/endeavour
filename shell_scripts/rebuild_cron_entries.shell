@@ -1,0 +1,13 @@
+exitcode=1
+
+user=$1
+command=$2
+
+
+
+echo "Reissuing crontab"
+crontab -u $user  /etc/endurance/configs/cron/$user/crontab
+exitcode=$?
+
+echo "Printing user crons"
+crontab -u $user  -l

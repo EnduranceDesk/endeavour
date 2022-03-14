@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Domain extends Model
 {
-    protected $append = ["ssl","current_php"];
+    protected $appends = ["ssl","current_php"];
     public function getSslAttribute()
     {
         $apache = new Apache;
@@ -20,6 +20,10 @@ class Domain extends Model
     public function getCurrentPHPAttribute()
     {
         return $this->getMetaData()->current_php;
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
     public function emails()
     {

@@ -7,9 +7,74 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Classes\Cron\Cron;
 use App\Helpers\Responder;
+use App\Models\Rover;
+use App\Models\User;
 
 class CronController extends Controller
 {
+    public function addEntry(Request $request) {
+        $rover = $request->input("rover");
+        $command = $request->input("command");
+        $current_user = auth()->user();
+        $subject_user = User::where("username", $rover)->first()->domains->first();
+
+        if ($current_user->username == "root") {
+            $process = Cron::add($rover, $command);
+        } elseif ($current_user->username == $rover) {
+            $process = Cron::add($rover, $command);
+        } else {
+            return response()->json(Responder::build(200,false , "Cron entry addition failed due to invalid permissions.",[],"Cron entry addition failed.. Rover: " . $rover . " | Command: " . $command .  " | Linux user: " . $current_user->username), 200);
+        }
+        if ($process->success) {
+            return response()->json(Responder::build(200,true , "Cron entry addition successful.",[],"Cron entry addition successful. Rover: " . $rover . " | Command: " . $command .  " | Linux user: " . $current_user->username), 200);
+        } else {
+            return response()->json(Responder::build(200,false , "Cron entry addition failed.",[],"Cron entry addition failed.. Rover: " . $rover . " | Command: " . $command .  " | Linux user: " . $current_user->username), 200);
+        }
+    }
+    public function deleteEntry(Request $request) {
+        $rover = $request->input("rover");
+        $command = $request->input("command");
+        $current_user = auth()->user();
+        $subject_user = User::where("username", $rover)->first()->domains->first();
+
+        if ($current_user->username == "root") {
+            $process = Cron::delete($rover, $command);
+        } elseif ($current_user->username == $rover) {
+            $process = Cron::delete($rover, $command);
+        } else {
+            return response()->json(Responder::build(200,false , "Cron entry deletion failed due to invalid permissions.",[],"Cron entry addition failed.. Rover: " . $rover . " | Command: " . $command .  " | Linux user: " . $current_user->username), 200);
+        }
+        if ($process->success) {
+            return response()->json(Responder::build(200,true , "Cron entry deletion successful.",[],"Cron entry addition successful. Rover: " . $rover . " | Command: " . $command .  " | Linux user: " . $current_user->username), 200);
+        } else {
+            return response()->json(Responder::build(200,false , "Cron entry deletion failed.",[],"Cron entry addition failed.. Rover: " . $rover . " | Command: " . $command .  " | Linux user: " . $current_user->username), 200);
+        }
+    }
+    public function getEntries(Request $request)
+    {
+        $rover=$request->input("rover");
+        $current_user = auth()->user();
+        if ($current_user->username == "root") {
+            $text = Cron::fetch($rover);
+        } elseif ($current_user->username == $rover) {
+            $text = Cron::fetch($rover);
+        } else {
+            return response()->json(Responder::build(200,false , "Cron entry fetch failed.",[],"Cron entry fetch failed. Rover: " . $rover), 200);
+        }
+        if (empty($text)) {
+            $entries = [];
+        } else {
+            $entries  = explode(PHP_EOL, $text);
+        }
+        $entries = array_filter($entries);
+        $entries = array_filter($entries, function($v, $k) {
+            return  $v != " ";
+        }, ARRAY_FILTER_USE_BOTH);
+        return response()->json(Responder::build(200,true , "Cron entry fetch successful.",[
+            "entries" => $entries
+        ],"Cron entry fetch successful."), 200);
+
+    }
     public function getStatus(Request $request)
     {
         $cron = new Cron();

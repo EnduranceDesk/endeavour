@@ -4,6 +4,7 @@ namespace App\Classes\Acme;
 
 use App\Classes\Apache\Apache;
 use App\Helpers\Screen;
+use App\Models\Domain;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -39,7 +40,9 @@ class Acme
     {
         $chain  = $this->buildChain($domain_without_www);
         $apache = new Apache;
-        $check = $apache->updateSSL(Auth::user()->username, $domain_without_www , $chain, $current_php_version);
+        $domainModel = Domain::where("name", $domain_without_www)->first();
+
+        $check = $apache->updateSSL($domainModel->user->username, $domain_without_www , $chain, $current_php_version);
         return $check;
     }
 }
