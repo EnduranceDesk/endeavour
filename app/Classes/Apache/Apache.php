@@ -4,6 +4,7 @@ namespace App\Classes\Apache;
 
 use App\Classes\PHP\PHP;
 use App\Helpers\Screen;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Apache Manager
@@ -93,6 +94,7 @@ class Apache
     }
     public function updateSSL(string $username,string  $domain,string  $chain, $current_php_version)
     {
+        Log::info("Updating SSL for " . $domain . " for user " . $username);
         if (!file_exists($this->myssl)) {
             mkdir($this->myssl);
         }
