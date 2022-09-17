@@ -56,7 +56,7 @@ return [
 
         'slack' => [
             'driver' => 'slack',
-            'url' => "https://hooks.slack.com/services/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",
+            'url' => env('STACK_WEBHOOK_URL'),
             'username' => 'Endeavour',
             'emoji' => ':boom:',
             'level' => 'debug',

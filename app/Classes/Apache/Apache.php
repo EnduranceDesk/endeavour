@@ -94,7 +94,6 @@ class Apache
     }
     public function updateSSL(string $username,string  $domain,string  $chain, $current_php_version)
     {
-        Log::info("Updating SSL for " . $domain . " for user " . $username);
         if (!file_exists($this->myssl)) {
             mkdir($this->myssl);
         }

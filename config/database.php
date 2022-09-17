@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => 'mysql',
 
     /*
     |--------------------------------------------------------------------------
@@ -45,10 +45,10 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'forge'),
+            // 'url' => '127.0.0.1',
+            'host' => "127.0.0.1",
+            'port' => '3306',
+            'database' => 'endurance',
             'username' => "root",
             'password' => file_get_contents("/etc/endurance/credentials/mysql.root"),
             'unix_socket' => env('DB_SOCKET', ''),

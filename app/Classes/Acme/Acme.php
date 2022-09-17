@@ -41,7 +41,6 @@ class Acme
         $chain  = $this->buildChain($domain_without_www);
         $apache = new Apache;
         $domainModel = Domain::where("name", $domain_without_www)->first();
-
         $check = $apache->updateSSL($domainModel->user->username, $domain_without_www , $chain, $current_php_version);
         return $check;
     }
